@@ -9,7 +9,7 @@ import docker
 
 logger = logging.getLogger(__name__)
 
-IMAGE = "python:3.12-slim"
+IMAGE = "python:3.12"
 WORKDIR = "/work"
 REPO_DIR = f"{WORKDIR}/repo"
 DEFAULT_TIMEOUT = 300
@@ -44,8 +44,7 @@ class SandboxJob:
         )
         clone_url = f"https://x-access-token:{self.token}@github.com/{self.repo}.git"
         setup = (
-            "sh -c 'apt-get update -qq && apt-get install -y -qq git > /dev/null"
-            f" && git clone --depth 50 --branch {shlex.quote(self.base_branch)}"
+            f"sh -c 'git clone --depth 50 --branch {shlex.quote(self.base_branch)}"
             f" {shlex.quote(clone_url)} {REPO_DIR}"
             f" && cd {REPO_DIR}"
             " && git config user.name janus"
@@ -74,8 +73,7 @@ class SandboxJob:
     async def write_file(self, path: str, content: str) -> str:
         quoted = shlex.quote(path)
         heredoc = (
-            f"mkdir -p $(dirname {quoted}) && cat > {quoted} << 'JANUS_EOF'\n"
-            f"{content}\nJANUS_EOF"
+            f"mkdir -p $(dirname {quoted}) && cat > {quoted} << 'JANUS_EOF'\n{content}\nJANUS_EOF"
         )
         code, out = await self.run(f"sh -c {shlex.quote(heredoc)}")
         return "ok" if code == 0 else f"(write failed: {out[:200]})"
