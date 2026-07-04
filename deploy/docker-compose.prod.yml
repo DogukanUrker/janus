@@ -1,0 +1,43 @@
+services:
+  janus:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    env_file: /opt/janus/.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/janus/janus.private-key.pem:/app/janus.private-key.pem:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: janus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-janus}
+      POSTGRES_DB: janus
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U janus"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      JANUS_DOMAIN: ${JANUS_DOMAIN:-janus.dogukanurker.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy_data:

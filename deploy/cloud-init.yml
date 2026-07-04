@@ -1,0 +1,18 @@
+#cloud-config
+package_update: true
+packages:
+  - docker.io
+  - docker-compose-v2
+  - git
+  - ufw
+users:
+  - name: janus
+    groups: [docker]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+runcmd:
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
+  - systemctl enable --now docker
