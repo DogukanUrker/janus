@@ -88,10 +88,13 @@ class SandboxJob:
         return [line[3:].strip() for line in out.splitlines() if line.strip()]
 
     async def push_branch(self, branch: str, message: str) -> bool:
-        code, out = await self.run(
+        author = "-c user.name='janus-maintainer[bot]' -c user.email='4214565+janus-maintainer[bot]@users.noreply.github.com'"
+        cmd = (
             f"sh -c 'git checkout -b {shlex.quote(branch)} && git add -A"
-            f" && git commit -m {shlex.quote(message)} && git push origin {shlex.quote(branch)}'"
+            f" && git {author} commit -m {shlex.quote(message)}"
+            f" && git push origin {shlex.quote(branch)}'"
         )
+        code, out = await self.run(cmd)
         if code != 0:
             logger.error("push failed: %s", out[-1000:])
         return code == 0
