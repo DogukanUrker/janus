@@ -88,11 +88,15 @@ class SandboxJob:
         return [line[3:].strip() for line in out.splitlines() if line.strip()]
 
     async def push_branch(self, branch: str, message: str) -> bool:
-        author = "-c user.name='janus-maintainer[bot]' -c user.email='4214565+janus-maintainer[bot]@users.noreply.github.com'"
-        cmd = (
-            f"sh -c 'git checkout -b {shlex.quote(branch)} && git add -A"
-            f" && git {author} commit -m {shlex.quote(message)}"
-            f" && git push origin {shlex.quote(branch)}'"
+        name = "janus-maintainer[bot]"
+        email = "4214565+janus-maintainer[bot]@users.noreply.github.com"
+        cmd = "sh -c " + shlex.quote(
+            f"git config user.name {shlex.quote(name)} && "
+            f"git config user.email {shlex.quote(email)} && "
+            f"git checkout -b {shlex.quote(branch)} && "
+            f"git add -A && "
+            f"git commit -m {shlex.quote(message)} && "
+            f"git push origin {shlex.quote(branch)}"
         )
         code, out = await self.run(cmd)
         if code != 0:
