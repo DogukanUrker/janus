@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.pem
+.oss-dev/
+janus.db
+.pytest_cache/
+.ruff_cache/
+dist/
+TODO-INTEGRATION.md
