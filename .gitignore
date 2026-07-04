@@ -9,3 +9,4 @@ janus.db
 .ruff_cache/
 dist/
 TODO-INTEGRATION.md
+.DS_Store
